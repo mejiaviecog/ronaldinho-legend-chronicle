@@ -1,13 +1,24 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import App from '../App';
+import { HeroSection } from '../components/HeroSection';
+import { CareerTimeline } from '../components/CareerTimeline';
+import { TrophyVault } from '../components/TrophyVault';
+import { PrisonChronicleSection } from '../components/PrisonChronicleSection';
+import { SkillMovesInteractive } from '../components/SkillMovesInteractive';
+import {
+  heroData,
+  careerMilestones,
+  trophiesData,
+  prisonChronicleData,
+  skillMovesData,
+} from '../data/ronaldinhoData';
 
 describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (Suite QA)', () => {
-  beforeEach(() => {
-    render(<App />);
-  });
-
   it('1. Renderiza el Hero de Ronaldinho Gaúcho ("O Bruxo"), su carta Prime 99 OVR y permite invocar magia e inspeccionar atributos', () => {
+    const onExploreChronicle = vi.fn();
+    render(<HeroSection data={heroData} onExploreChronicle={onExploreChronicle} />);
+
     // Titular épico e identidad de O Bruxo
     expect(
       screen.getByRole('heading', { name: /LA SONRISA QUE INMORTALIZÓ EL FÚTBOL/i })
@@ -35,9 +46,18 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
     expect(
       screen.getByText(/66 goles de tiro libre oficial: por encima de la escuadra/i)
     ).toBeInTheDocument();
+
+    // CTA hacia el Expediente Asunción 2020
+    const chronicleBtn = screen.getByRole('button', {
+      name: /Expediente Asunción 2020 \(11-2\)/i,
+    });
+    fireEvent.click(chronicleBtn);
+    expect(onExploreChronicle).toHaveBeenCalledTimes(1);
   });
 
   it('2. Permite interactuar con la Línea de Tiempo de su trayectoria (CareerTimeline) cambiando entre FC Barcelona, Brasil y Atlético Mineiro y filtrando por región', () => {
+    render(<CareerTimeline milestones={careerMilestones} />);
+
     // Por defecto inicia en FC Barcelona (índice 2)
     expect(
       screen.getByRole('heading', { name: 'FC Barcelona', level: 3 })
@@ -63,7 +83,7 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
       screen.getByRole('heading', { name: /Clube Atlético Mineiro/i, level: 3 })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Campeón de la Copa Libertadores 2013/i)
+      screen.getByRole('heading', { name: 'Campeón de la Copa Libertadores 2013', level: 4 })
     ).toBeInTheDocument();
 
     // Probar filtro de continente "Europa (3)"
@@ -75,6 +95,8 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
   });
 
   it('3. Filtra la Sala de Trofeos (TrophyVault) y desbloquea el Trofeo Secreto de la Agrupación Especializada 2020 (Lechón de 16 KG)', () => {
+    render(<TrophyVault trophies={trophiesData} />);
+
     expect(
       screen.getByRole('heading', { name: /LA BÓVEDA DEL SEXTETE INMORTAL/i })
     ).toBeInTheDocument();
@@ -124,11 +146,15 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
   });
 
   it('4. Renderiza e interactúa con la sección del paso por la cárcel en Paraguay (PrisonChronicleSection): marcador 11-2, 5 goles y 6 asistencias, y navegación por las fases del expediente 2020', () => {
+    render(<PrisonChronicleSection data={prisonChronicleData} />);
+
     // Cabecera y métricas clave del Expediente Asunción 2020
     expect(
       screen.getByRole('heading', { name: /EL EXPEDIENTE ASUNCIÓN 2020: 171 DÍAS EN PARAGUAY/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/EXP-2020-ASU-0306-R10/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/EXPEDIENTE CLASIFICADO • EXP-2020-ASU-0306-R10/i)
+    ).toBeInTheDocument();
     expect(screen.getByText('32 Días')).toBeInTheDocument();
     expect(screen.getByText('139 Días')).toBeInTheDocument();
     expect(screen.getByText('171 Días')).toBeInTheDocument();
@@ -139,7 +165,7 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
     expect(screen.getByText('6 Pases')).toBeInTheDocument();
     expect(screen.getByText(/100% PARTICIPACIÓN DE DINHO \(5G \+ 6A\)/i)).toBeInTheDocument();
 
-    // Navegación entre las fases cronológicas del expediente (Día 1, Día 16, Día 32, Día 171)
+    // Navegación entre las fases cronológicas del expediente (Día 1 y Día 171)
     const day1Button = screen.getByRole('button', {
       name: /Día 1.*Aterrizaje en Asunción, Allanamiento en el Yacht/i,
     });
@@ -182,6 +208,8 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
   });
 
   it('5. Permite interactuar con el laboratorio de regates (SkillMovesInteractive) cambiando entre jugadas y simulando su trayectoria SVG', () => {
+    render(<SkillMovesInteractive skills={skillMovesData} />);
+
     expect(
       screen.getByRole('heading', { name: /ANATOMÍA DE SUS 6 REGATES SAGRADOS/i })
     ).toBeInTheDocument();
@@ -226,15 +254,27 @@ describe('Ronaldinho Gaúcho — The Immortal Legend & The Asunción Chronicle (
     ).toBeInTheDocument();
   });
 
-  it('6. Permite conmutar entre el modo "Joga Bonito" y "Expediente 2020" desde la barra de navegación', () => {
-    const modeToggleBtn = screen.getByRole('button', {
+  it('6. Integra todas las secciones en App y permite conmutar entre el modo "Joga Bonito" y "Expediente 2020"', () => {
+    const { container } = render(<App />);
+
+    // Verifica que todas las secciones principales están montadas en el DOM de App
+    expect(container.querySelector('#hero')).toBeInTheDocument();
+    expect(container.querySelector('#trayectoria')).toBeInTheDocument();
+    expect(container.querySelector('#trofeos')).toBeInTheDocument();
+    expect(container.querySelector('#paraguay-2020')).toBeInTheDocument();
+    expect(container.querySelector('#regates')).toBeInTheDocument();
+    expect(container.querySelector('#legado')).toBeInTheDocument();
+
+    // Conmutar modo desde la barra de navegación
+    const nav = container.querySelector('nav')!;
+    const modeToggleBtn = within(nav).getByRole('button', {
       name: /Activar Modo Expediente Asunción 2020/i,
     });
     fireEvent.click(modeToggleBtn);
 
     expect(
-      screen.getByRole('button', { name: /Activar Modo Joga Bonito/i })
+      within(nav).getByRole('button', { name: /Activar Modo Joga Bonito/i })
     ).toBeInTheDocument();
-    expect(screen.getByText(/CASO #2020-ASU • NOIR/i)).toBeInTheDocument();
+    expect(within(nav).getByText(/CASO #2020-ASU • NOIR/i)).toBeInTheDocument();
   });
 });
