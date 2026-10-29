@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Bloqueo de rutas administrativas o de compilación interna si existieran
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Host y Sitemap principal
+Sitemap: https://ronaldinho-obruxo.vercel.app/sitemap.xml

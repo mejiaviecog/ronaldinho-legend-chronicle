@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+>
+  <url>
+    <loc>https://ronaldinho-obruxo.vercel.app/</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://ronaldinho-obruxo.vercel.app/assets/hero-bruxo.jpg</image:loc>
+      <image:title>Ronaldinho Gaúcho - O Bruxo | Biografía, Trofeos e Historia</image:title>
+      <image:caption>Retrato heroico de Ronaldinho Gaúcho (O Bruxo), campeón del Mundo 2002, Balón de Oro 2005, Champions League 2006 y Copa Libertadores 2013.</image:caption>
+    </image:image>
+  </url>
+</urlset>
